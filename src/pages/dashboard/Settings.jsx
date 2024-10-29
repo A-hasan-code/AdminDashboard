@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getSettings, saveSettings } from '@/Api/Settingsapi';
+import { getSettings, saveSettings } from '@/api/Settingsapi';
 import DynamicFormField from '@/widgets/layout/InputField';
 import { Card, CardContent, Typography, Button, CircularProgress } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';

@@ -32,7 +32,8 @@ export function DashboardNavbar() {
   const { fixedNavbar, openSidenav } = useSelector((state) => state.materialTailwind);
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-  const { isAuthenticated } = useSelector((state) => state.user); // Get authentication state
+  const { isAuthenticated } = useSelector((state) => state.auth); // Get authentication state
+  console.log(isAuthenticated)
 
   const handleProfileClick = () => {
     if (isAuthenticated) {
@@ -83,7 +84,7 @@ export function DashboardNavbar() {
             <Link to="/auth/sign-in">
               <Button variant="text" color="blue-gray" className="hidden items-center gap-1 px-4 xl:flex normal-case">
                 <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
-                Sign In
+              {isAuthenticated? "Signout": "Sign In "}
               </Button>
             </Link>
           )}

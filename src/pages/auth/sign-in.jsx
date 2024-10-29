@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Card,
   Input,
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,Navigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from "react-redux"; 
@@ -16,8 +16,13 @@ export function SignIn() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch(); 
-  const { loading, error } = useSelector((state) => state.auth); // Accessing auth state
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth); // Accessing auth state
   const navigate = useNavigate();
+    useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard/home"); // Redirect to dashboard
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault(); 

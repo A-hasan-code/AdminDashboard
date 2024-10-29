@@ -5,11 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "@/Redux/slices/authslices"; 
 import ProtectedRoute from "@/ProtectedRoute"; 
 import "@/app.css";
-import Protect from "./Protect";
+// import Protect from "./Protect";
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated, user,loading, error } = useSelector((state) => state.auth); 
-console.log(user)
+   const user = useSelector((state) => state.auth);
+   console.log(user,"head")
+  const { isAuthenticated,loading, error } = useSelector((state) => state.auth); 
+
   useEffect(() => {
     
     const token = localStorage.getItem('access_token');
@@ -28,7 +30,7 @@ console.log(user)
 
   return (
     <Routes>
-      <Route path="/dashboard/*" element={<ProtectedRoute element={<Dashboard />} />} />
+      <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute> } />
       <Route path="/auth/*" element={<Auth />} />
       <Route path="*" element={<Navigate to="/dashboard/home" replace />} />
     </Routes>

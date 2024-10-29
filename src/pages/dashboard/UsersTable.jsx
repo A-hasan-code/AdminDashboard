@@ -14,12 +14,12 @@ import { FaEdit } from "react-icons/fa";
 import { MdDeleteSweep } from "react-icons/md";
 import "ag-grid-community/styles/ag-grid.css";
 import 'ag-grid-community/styles/ag-theme-material.css';
-
 import { toast } from 'react-toastify';
 
 export const UsersTable = () => {
     const dispatch = useDispatch();
-    const { users, loading, error } = useSelector(state => state.user);
+    const { users, isloading, error } = useSelector(state => state.user);
+    console.log(isloading)
     const [isModalOpen, setModalOpen] = useState(false);
     const [editUserId, setEditUserId] = useState(null);
 
@@ -33,21 +33,14 @@ export const UsersTable = () => {
         fetchUsers();
     }, [dispatch]);
 
-    const refreshUsers = async () => {
-        const result = await dispatch(fetchUsersThunk());
-        if (fetchUsersThunk.rejected.match(result)) {
-            toast.error("Failed to refresh users: " + result.error.message);
-        }
-    };
-
     const handleAddUser = async (userData) => {
         const result = await dispatch(addUserThunk(userData));
         if (addUserThunk.rejected.match(result)) {
             toast.error("Failed to create user: " + result.error.message);
         } else {
             toast.success("User created successfully.");
-            setModalOpen(false);
-            await refreshUsers();
+            // Optimistically update the users array
+            dispatch(fetchUsersThunk()); // Re-fetch users or update the local state directly
         }
     };
 
@@ -57,8 +50,8 @@ export const UsersTable = () => {
             toast.error("Failed to update user: " + result.error.message);
         } else {
             toast.success("User updated successfully.");
-            setModalOpen(false);
-            await refreshUsers();
+            dispatch(fetchUsersThunk()); // Re-fetch users
+            setEditUserId(null);
         }
     };
 
@@ -69,7 +62,7 @@ export const UsersTable = () => {
                 toast.error("Failed to delete user: " + result.error.message);
             } else {
                 toast.success("User deleted successfully.");
-                await refreshUsers();
+                dispatch(fetchUsersThunk()); // Re-fetch users
             }
         }
     };
@@ -81,7 +74,7 @@ export const UsersTable = () => {
             toast.error("Failed to change user status: " + result.error.message);
         } else {
             toast.success("User status updated successfully.");
-            await refreshUsers();
+            dispatch(fetchUsersThunk()); // Re-fetch users
         }
     };
 
@@ -92,7 +85,7 @@ export const UsersTable = () => {
         role: user.role,
         status: user.status,
     }));
-
+console.log(rowData)
     const columnDefs = [
         { headerName: "ID", field: "id", sortable: true, filter: true, width: 60, cellStyle: { textAlign: 'center' } },
         { headerName: "Name", field: "name", sortable: true, filter: true, cellStyle: { textAlign: 'center' } },
@@ -102,7 +95,7 @@ export const UsersTable = () => {
             headerName: "Status",
             field: "status",
             sortable: true,
-            filter: 'agSetColumnFilter', // Using Set filter for status
+            filter: 'agSetColumnFilter',
             editable: true,
             cellEditor: 'agSelectCellEditor',
             cellEditorParams: {
@@ -162,10 +155,8 @@ export const UsersTable = () => {
                     </span>
                 </CardHeader>
                 <CardBody className="overflow-x-auto p-0">
-                    {loading ? (
+                    {isloading ? (
                         <Typography className="text-center">Loading...</Typography>
-                    ) : error ? (
-                        <Typography className="text-center text-red-600">{error}</Typography>
                     ) : (
                         <div className="ag-theme-material-dark" style={{ height: 'fit-content', maxWidth: "100%" }}>
                             <AgGridReact
@@ -176,13 +167,12 @@ export const UsersTable = () => {
                                 domLayout='autoHeight'
                                 animateRows={true}
                                 headerClass="bg-gray-800 text-white"
-                                // rowClass="border-b border-gray-200 hover:bg-gray-100"
                                 enableSorting={true}
                                 enableFilter={true}
                                 defaultColDef={{
-                                    filter: true, // Enable filtering for all columns by default
-                                    sortable: true, // Enable sorting for all columns by default
-                                    resizable: true, // Allow columns to be resized
+                                    filter: true,
+                                    sortable: true,
+                                    resizable: true,
                                 }}
                             />
                         </div>
@@ -193,7 +183,10 @@ export const UsersTable = () => {
             {isModalOpen && (
                 <AddUsers
                     isOpen={isModalOpen}
-                    onClose={() => setModalOpen(false)}
+                    onClose={() => {
+                        setModalOpen(false);
+                        setEditUserId(null); // Clear edit user ID when modal closes
+                    }}
                     onSubmit={editUserId ? handleEditUser : handleAddUser}
                     userData={userToEdit}
                 />

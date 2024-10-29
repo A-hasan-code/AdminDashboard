@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginUser, signupUser, logoutUser, fetchCurrentUser, updateUserProfile } from '@/Api/Users';
+import { loginUser, signupUser, logoutUser, fetchCurrentUser, updateUserProfile } from '@/api/Users';
 import { toast } from 'react-toastify';
 
 // Async thunks

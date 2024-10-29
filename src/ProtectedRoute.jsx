@@ -1,13 +1,22 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
-const ProtectedRoute = ({ element }) => {
-  // Correctly accessing the isAuthenticated state
-  const { isAuthenticated } = useSelector((state) => state.auth); 
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [redirecting, setRedirecting] = useState(false);
 
-  console.log("ProtectedRoute - Authenticated:", isAuthenticated); // Log for debugging
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setRedirecting(true);
+    }
+  }, [isAuthenticated]);
 
-  return isAuthenticated ? element : <Navigate to="/auth/sign-in" replace />;
+  if (redirecting) {
+    return <Navigate to="/auth/sign-in" />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

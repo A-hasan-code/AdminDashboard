@@ -1,4 +1,4 @@
-import apiClient from '@/Api/Axios';
+import apiClient from '@/api/Axios';
 
 // Fetch settings from the server
 export const getSettings = async () => {

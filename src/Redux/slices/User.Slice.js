@@ -5,12 +5,12 @@ import {
     editUser,
     deleteUser,
     changeUserStatus,
-} from '@/Api/Users'; // Adjust the import based on your API file structure
+} from '@/api/Users'; // Adjust the import based on your API file structure
 
 // Initial state
 const initialState = {
     users: [], // Initialized as an empty array
-    loading: false,
+    isloading: false,
     error: null,
 };
 
@@ -45,54 +45,49 @@ export const changeUserStatusThunk = createAsyncThunk('user/changeUserStatus', a
 // User slice
 const userSlice = createSlice({
     name: 'users',
-    initialState: {
-        users: [],
-        selectedUser: null,
-        isLoading: false,
-        error: null,
-    },
+    initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder
             // Fetch users
             .addCase(fetchUsersThunk.pending, (state) => {
-                state.isLoading = true;
+                state.isloading = true;
                 state.error = null;
             })
             .addCase(fetchUsersThunk.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isloading = false;
                 state.users = Array.isArray(action.payload.data) ? action.payload.data : [];  // Ensure it's an array
                 state.error = null;
             })
             .addCase(fetchUsersThunk.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isloading = false;
                 state.error = action.error.message; // Set the error message
             })
 
             // Add user
             .addCase(addUserThunk.pending, (state) => {
-                state.loading = true;
+                state.isloading = true;
             })
             .addCase(addUserThunk.fulfilled, (state, action) => {
-                state.users.push(action.payload);
-                // state.loading = false;
-                // if (Array.isArray(state.users)) {
-                //     state.users.push(action.payload); // Add the new user
-                // }
+                // state.users.push(action.payload);
+                state.isloading = false;
+                if (Array.isArray(state.users)) {
+                    state.users.push(action.payload); // Add the new user
+                }
             })
             .addCase(addUserThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 state.error = action.error.message; // Set the error message
             })
 
             // Edit user
             .addCase(editUserThunk.pending, (state) => {
-                state.loading = true;
+                state.isloading = true;
             })
             .addCase(editUserThunk.fulfilled, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 console.log("Edit user payload:", action.payload); // Log the payload
-                state.loading = false;
+                state.isloading = false;
                 if (Array.isArray(state.users)) {
                     const index = state.users.findIndex(user => user.id === action.payload.id);
                     if (index !== -1) {
@@ -105,17 +100,17 @@ const userSlice = createSlice({
                 }
             })
             .addCase(editUserThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 state.error = action.error.message; // Set the error message
             })
 
             // Delete user
             .addCase(deleteUserThunk.pending, (state) => {
-                state.loading = true;
+                statisloading = true;
             })
             .addCase(deleteUserThunk.fulfilled, (state, action) => {
                 console.log("Before deletion:", state.users);
-                state.loading = false;
+                state.isloading = false;
                 const index = state.users.findIndex(user => user.id === action.payload.id);
                 if (index !== -1) {
                     state.users[index] = action.payload;
@@ -125,16 +120,16 @@ const userSlice = createSlice({
                 // }
             })
             .addCase(deleteUserThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 state.error = action.error.message; // Set the error message
             })
 
             // Change user status
             .addCase(changeUserStatusThunk.pending, (state) => {
-                state.loading = true;
+                state.isloading = true;
             })
             .addCase(changeUserStatusThunk.fulfilled, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 if (Array.isArray(state.users)) {
                     const index = state.users.findIndex(user => user.id === action.payload);
                     if (index !== -1) {
@@ -145,7 +140,7 @@ const userSlice = createSlice({
                 }
             })
             .addCase(changeUserStatusThunk.rejected, (state, action) => {
-                state.loading = false;
+                state.isloading = false;
                 state.error = action.error.message; // Set the error message
             });
     },

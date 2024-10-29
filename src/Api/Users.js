@@ -1,4 +1,4 @@
-import apiClient from '@/Api/Axios';
+import apiClient from '@/api/Axios';
 
 // Login user
 export const loginUser = async (userData) => {
