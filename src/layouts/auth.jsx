@@ -22,11 +22,13 @@ export function Auth() {
     },
     {
       name: "sign up",
+       isAuthPage: true, 
       path: "/auth/sign-up",
       icon: UserPlusIcon,
     },
     {
       name: "sign in",
+       isAuthPage: true, 
       path: "/auth/sign-in",
       icon: ArrowRightOnRectangleIcon,
     },

@@ -23,11 +23,6 @@ export const signup = createAsyncThunk('auth/signup', async (userData, { rejectW
     }
 });
 
-export const logout = createAsyncThunk('auth/logout', async () => {
-    await logoutUser();
-    localStorage.removeItem('access_token');
-});
-
 export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWithValue }) => {
     try {
         const response = await fetchCurrentUser();
@@ -36,10 +31,23 @@ export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWi
         return rejectWithValue(error.message);
     }
 });
+
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (profileData, { rejectWithValue }) => {
     try {
         const response = await updateUserProfile(profileData);
-        return response; // Return the updated user data
+        return response;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+});
+
+// Logout action (async thunk)
+export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
+    try {
+        // You can call a logout API here if required
+        // await logoutUser();
+        localStorage.removeItem('access_token'); // Remove the token from localStorage
+        return { message: 'You have been logged out successfully!' }; // Custom message for success
     } catch (error) {
         return rejectWithValue(error.message);
     }
@@ -63,6 +71,7 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // Handle login actions
             .addCase(login.pending, (state) => {
                 state.loading = true;
             })
@@ -76,6 +85,8 @@ const authSlice = createSlice({
                 state.error = action.payload;
                 toast.error(action.payload);
             })
+
+            // Handle signup actions
             .addCase(signup.pending, (state) => {
                 state.loading = true;
             })
@@ -89,10 +100,8 @@ const authSlice = createSlice({
                 state.error = action.payload;
                 toast.error(action.payload);
             })
-            .addCase(logout.fulfilled, (state) => {
-                state.user = null;
-                state.isAuthenticated = false;
-            })
+
+            // Handle fetchUser actions
             .addCase(fetchUser.pending, (state) => {
                 state.loading = true;
             })
@@ -106,6 +115,8 @@ const authSlice = createSlice({
                 state.error = action.payload;
                 toast.error(action.payload);
             })
+
+            // Handle updateProfile actions
             .addCase(updateProfile.pending, (state) => {
                 state.loading = true;
             })
@@ -118,6 +129,23 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
                 toast.error(action.payload);
+            })
+
+            // Handle logout actions
+            .addCase(logout.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(logout.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = null;
+                state.isAuthenticated = false;
+                // Ensure that state is updated after the token is cleared
+                toast.success(action.payload.message || 'You have been logged out successfully!');
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+                toast.error('Logout failed. Please try again.');
             })
     },
 });

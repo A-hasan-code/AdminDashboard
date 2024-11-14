@@ -55,11 +55,13 @@ export const routes = [
   },
  
   {
-    title: "auth pages",
+ 
     layout: "auth",
+     
     pages: [
       {
         icon: <ServerStackIcon {...icon} />,
+          isAuthPage: true,
         name: "sign in",
         path: "/sign-in",
         element: <SignIn />,

@@ -8,13 +8,14 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setOpenSidenav,
-} from "@/Redux/slices/materialTailwindSlice"
+import { setOpenSidenav } from "@/Redux/slices/materialTailwindSlice";
 
 export function Sidenav({ routes }) {
   const dispatch = useDispatch();
   const { sidenavColor, sidenavType, openSidenav } = useSelector((state) => state.materialTailwind);
+  
+  // Get authentication status from Redux or context
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); // assuming `auth` holds the user state
   
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
@@ -51,7 +52,6 @@ export function Sidenav({ routes }) {
           size="sm"
           ripple={false}
           className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden"
-         
         >
           <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
         </IconButton>
@@ -71,34 +71,42 @@ export function Sidenav({ routes }) {
                 </Typography>
               </li>
             )}
-            {pages.map(({ icon, name, path }) => (
-              <li key={name}>
-                <NavLink to={`/${layout}${path}`}>
-                  {({ isActive }) => (
-                    <Button
-                      variant={isActive ? "gradient" : "text"}
-                      color={
-                        isActive
-                          ? sidenavColor
-                          : sidenavType === "dark"
-                          ? "white"
-                          : "blue-gray"
-                      }
-                      className="flex items-center gap-4 px-4 capitalize"
-                      fullWidth
-                    >
-                      {icon}
-                      <Typography
-                        color="inherit"
-                        className="font-medium capitalize"
+            {pages.map(({ icon, name, path, requiresAuth, isAuthPage }) => {
+              // Only show items that require auth if the user is authenticated
+              // Also, show auth pages (SignIn/SignUp) only if the user is NOT authenticated
+              if ((requiresAuth && !isAuthenticated) || (isAuthPage && isAuthenticated)) {
+                return null;
+              }
+
+              return (
+                <li key={name}>
+                  <NavLink to={`/${layout}${path}`}>
+                    {({ isActive }) => (
+                      <Button
+                        variant={isActive ? "gradient" : "text"}
+                        color={
+                          isActive
+                            ? sidenavColor
+                            : sidenavType === "dark"
+                            ? "white"
+                            : "blue-gray"
+                        }
+                        className="flex items-center gap-4 px-4 capitalize"
+                        fullWidth
                       >
-                        {name}
-                      </Typography>
-                    </Button>
-                  )}
-                </NavLink>
-              </li>
-            ))}
+                        {icon}
+                        <Typography
+                          color="inherit"
+                          className="font-medium capitalize"
+                        >
+                          {name}
+                        </Typography>
+                      </Button>
+                    )}
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         ))}
       </div>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const BASE_URL = 'https://lightgray-elephant-928373.hostingersite.com/api';
+const BASE_URL = 'https://red-aardvark-461723.hostingersite.com/api';
 
 
 const Axios = axios.create({

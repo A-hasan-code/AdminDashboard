@@ -24,6 +24,7 @@ export const signupUser = async (userData) => {
 export const logoutUser = async () => {
     try {
         await apiClient.post('/logout');
+        console.log('Logout response:', response);
         localStorage.removeItem('access_token');
         return true;
     } catch (error) {
@@ -62,7 +63,7 @@ export const addUser = async (userData) => {
     }
 };
 
-// Edit a user
+// Edit a user-
 export const editUser = async (id, userData) => {
     try {
         const response = await apiClient.post(`/users/${id}`, userData);

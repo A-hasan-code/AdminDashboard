@@ -16,31 +16,30 @@ import "ag-grid-community/styles/ag-grid.css";
 import 'ag-grid-community/styles/ag-theme-material.css';
 import { toast } from 'react-toastify';
 
+
 export const UsersTable = () => {
     const dispatch = useDispatch();
     const { users, isloading, error } = useSelector(state => state.user);
-    console.log(isloading)
     const [isModalOpen, setModalOpen] = useState(false);
     const [editUserId, setEditUserId] = useState(null);
 
+    // Fetch users data on component mount and after actions (add, edit, delete)
     useEffect(() => {
-        const fetchUsers = async () => {
-            const result = await dispatch(fetchUsersThunk());
-            if (fetchUsersThunk.rejected.match(result)) {
-                toast.error("Failed to fetch users: " + result.error.message);
-            }
-        };
-        fetchUsers();
+        dispatch(fetchUsersThunk());
     }, [dispatch]);
+
+    // Fetch users after each successful action
+    const refreshUserList = () => {
+        dispatch(fetchUsersThunk());
+    };
 
     const handleAddUser = async (userData) => {
         const result = await dispatch(addUserThunk(userData));
         if (addUserThunk.rejected.match(result)) {
             toast.error("Failed to create user: " + result.error.message);
-        } else {
+        } else {  refreshUserList()
             toast.success("User created successfully.");
-            // Optimistically update the users array
-            dispatch(fetchUsersThunk()); // Re-fetch users or update the local state directly
+          ;  // Refresh after adding user
         }
     };
 
@@ -50,7 +49,7 @@ export const UsersTable = () => {
             toast.error("Failed to update user: " + result.error.message);
         } else {
             toast.success("User updated successfully.");
-            dispatch(fetchUsersThunk()); // Re-fetch users
+            refreshUserList();  // Refresh after editing user
             setEditUserId(null);
         }
     };
@@ -62,7 +61,7 @@ export const UsersTable = () => {
                 toast.error("Failed to delete user: " + result.error.message);
             } else {
                 toast.success("User deleted successfully.");
-                dispatch(fetchUsersThunk()); // Re-fetch users
+                refreshUserList();  // Refresh after deleting user
             }
         }
     };
@@ -74,7 +73,7 @@ export const UsersTable = () => {
             toast.error("Failed to change user status: " + result.error.message);
         } else {
             toast.success("User status updated successfully.");
-            dispatch(fetchUsersThunk()); // Re-fetch users
+            refreshUserList();  // Refresh after changing status
         }
     };
 
@@ -85,7 +84,7 @@ export const UsersTable = () => {
         role: user.role,
         status: user.status,
     }));
-console.log(rowData)
+
     const columnDefs = [
         { headerName: "ID", field: "id", sortable: true, filter: true, width: 60, cellStyle: { textAlign: 'center' } },
         { headerName: "Name", field: "name", sortable: true, filter: true, cellStyle: { textAlign: 'center' } },

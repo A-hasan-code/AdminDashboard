@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Radar } from 'react-chartjs-2';
+import { Chart, RadarElement, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js';
 import { Card, CardContent, Typography, Box, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 // Register required components
-Chart.register(ArcElement, Tooltip, Legend);
+Chart.register(RadarElement, Tooltip, Legend, CategoryScale, LinearScale);
 
-const DonutChart = () => {
+const RadarChart = () => {
   const [selectedPipeline, setSelectedPipeline] = useState('All');
   const [pipelines, setPipelines] = useState([]);
   const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
+    labels: [], // For Radar chart, these are axis labels
+    datasets: [], // Data for each pipeline category
   });
   const colors = ['#0088FE', '#FF6384']; // Colors for incoming and won leads
 
@@ -41,15 +41,17 @@ const DonutChart = () => {
         : pipelines.filter(pipeline => pipeline.name === selectedPipeline);
 
       const incomingLeads = filtered.reduce((sum, pipeline) => sum + pipeline.incoming_leads, 0);
-      console.log(incomingLeads)
       const wonLeads = filtered.reduce((sum, pipeline) => sum + pipeline.won_leads, 0);
-      console.log(wonLeads)
+
       setChartData({
-        labels: ['Incoming Leads', 'Won Leads'],
+        labels: ['Incoming Leads', 'Won Leads'], // Axis labels for radar chart
         datasets: [{
-          label: 'Leads',
-          data: [incomingLeads, wonLeads],
-          backgroundColor: colors,
+          label: selectedPipeline === 'All' ? 'All Pipelines' : selectedPipeline,
+          data: [incomingLeads, wonLeads], // Data points for each axis
+          backgroundColor: colors[0], // Semi-transparent fill for radar
+          borderColor: colors[1], // Line color for the radar chart
+          borderWidth: 2,
+          pointBackgroundColor: colors[1], // Points color on the radar
         }],
       });
     };
@@ -62,14 +64,13 @@ const DonutChart = () => {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 350, margin: 'auto', padding: 2 }} >
+    <div style={{ width: '100%', maxWidth: 350, margin: 'auto', padding: 2 }}>
       <CardContent>
-        <Typography variant="h6" sx={{margin:2}}>Leads Distribution by Pipeline</Typography>
+        <Typography variant="h6" sx={{margin:9}}>Leads Distribution by Pipeline</Typography>
         
-        <FormControl fullWidth sx={{ marginBottom: 0,justifyContent: 'center'}}>
-          <InputLabel id="pipeline-select-label" >Select Pipeline</InputLabel>
+        <FormControl fullWidth sx={{ marginTop: 8 }}>
+          <InputLabel id="pipeline-select-label">Select Pipeline</InputLabel>
           <Select
-           sx={{ marginBottom: 2,justifyContent: 'center', height:'2rem',width:'100%'}}
             labelId="pipeline-select-label"
             value={selectedPipeline}
             onChange={handlePipelineChange}
@@ -82,14 +83,29 @@ const DonutChart = () => {
             ))}
           </Select>
         </FormControl>
+
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '270px', height: '300px' }}>
-            <Doughnut data={chartData} />
-          </div>
+          <Radar data={chartData} options={{
+            responsive: true,
+            scales: {
+              r: {
+                min: 0,
+                max: 100, // Adjust as needed for the range of data
+                ticks: {
+                  stepSize: 10,
+                },
+              },
+            },
+            elements: {
+              line: {
+                borderWidth: 3,
+              },
+            },
+          }} />
         </Box>
       </CardContent>
     </div>
   );
 };
 
-export default DonutChart;
+export default RadarChart;

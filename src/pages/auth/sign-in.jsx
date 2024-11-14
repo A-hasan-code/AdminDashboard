@@ -94,11 +94,12 @@ export function SignIn() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
+            
           </div>
           <Button className="mt-6" type="submit" fullWidth disabled={loading}>
             {loading ? 'Signing In...' : 'Sign In'}
           </Button>
-          {error && <Typography className="text-red-500">{error}</Typography>}
+          {/* {error && <Typography className="text-red-500">{error}</Typography>} */}
         </form>
       </div>
       <div className="w-2/5 h-full hidden lg:block">

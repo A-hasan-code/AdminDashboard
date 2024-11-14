@@ -20,15 +20,16 @@ export const fetchUsersThunk = createAsyncThunk('user/fetchUsers', async () => {
     return response; // Assuming this returns an array of users
 });
 
-export const addUserThunk = createAsyncThunk('user/addUser', async (userData) => {
+export const addUserThunk = createAsyncThunk('user/addUser', async (userData, { dispatch }) => {
     const response = await addUser(userData);
+    dispatch(fetchUsersThunk()); // Trigger fetchUsers to refresh the user list
     return response; // Assuming this returns the added user
 });
 
-export const editUserThunk = createAsyncThunk('user/editUser', async ({ id, userData }) => {
+export const editUserThunk = createAsyncThunk('user/editUser', async ({ id, userData }, { dispatch }) => {
     console.log("Editing user with ID:", id, "Data:", userData);
     const response = await editUser(id, userData);
-    console.log(response)
+    dispatch(fetchUsersThunk()); // Trigger fetchUsers to refresh the user list
     return response; // Assuming this returns the updated user
 });
 
@@ -69,7 +70,6 @@ const userSlice = createSlice({
                 state.isloading = true;
             })
             .addCase(addUserThunk.fulfilled, (state, action) => {
-                // state.users.push(action.payload);
                 state.isloading = false;
                 if (Array.isArray(state.users)) {
                     state.users.push(action.payload); // Add the new user
@@ -87,7 +87,6 @@ const userSlice = createSlice({
             .addCase(editUserThunk.fulfilled, (state, action) => {
                 state.isloading = false;
                 console.log("Edit user payload:", action.payload); // Log the payload
-                state.isloading = false;
                 if (Array.isArray(state.users)) {
                     const index = state.users.findIndex(user => user.id === action.payload.id);
                     if (index !== -1) {
@@ -106,18 +105,15 @@ const userSlice = createSlice({
 
             // Delete user
             .addCase(deleteUserThunk.pending, (state) => {
-                statisloading = true;
+                state.isloading = true;
             })
             .addCase(deleteUserThunk.fulfilled, (state, action) => {
                 console.log("Before deletion:", state.users);
                 state.isloading = false;
                 const index = state.users.findIndex(user => user.id === action.payload.id);
                 if (index !== -1) {
-                    state.users[index] = action.payload;
+                    state.users.splice(index, 1); // Remove user from the list
                 }
-                // if (Array.isArray(state.users)) {
-                //     state.users = state.users.filter(user => user.id !== action.payload);
-                // }
             })
             .addCase(deleteUserThunk.rejected, (state, action) => {
                 state.isloading = false;

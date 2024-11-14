@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUser, updateProfile } from "@/Redux/slices/authslices"; 
-import { Card, CardBody, Avatar, Typography, Button, Input, Tooltip } from "@material-tailwind/react";
-import { PencilIcon, CameraIcon } from "@heroicons/react/24/solid";
+import { Card, CardBody, Avatar, Typography, Button } from "@material-tailwind/react";
+import { CameraIcon } from "@heroicons/react/24/solid";
+import TextField from '@mui/material/TextField';
+import FormLabel from '@mui/material/FormLabel';
 
 export function Profile() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const loading = useSelector((state) => state.auth.loading);
-  
+
   const [formData, setFormData] = useState({
     fname: '',
     lname: '',
     mobile: '',
     email: '',
-    image: ''
+    image: ''  
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state
@@ -31,7 +33,7 @@ export function Profile() {
         fname: user.first_name || '',
         lname: user.last_name || '',
         email: user.email || '',
-        avatar: user.image || ''
+        image: user.image || '' // Ensure that the `user.image` exists
       });
     }
   }, [user]);
@@ -46,9 +48,13 @@ export function Profile() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, avatar: reader.result }));
+        setFormData((prev) => ({ ...prev, avatar: reader.result }));  // Ensure `avatar` is set correctly
       };
-      reader.readAsDataURL(file);
+      reader.onerror = () => {
+        console.error('File reading error');
+        alert("Failed to read the image file. Please try again.");
+      };
+      reader.readAsDataURL(file); // This reads the image as a Data URL
     }
   };
 
@@ -78,10 +84,9 @@ export function Profile() {
       <Card className="mx-3 -mt-16 mb-6 lg:mx-4 border border-blue-gray-100 shadow-lg">
         <CardBody className="p-6">
           <div className="flex flex-col items-center mb-8">
-            <label className="relative cursor-pointer">
+            <FormLabel className="relative cursor-pointer">
               <Avatar
-                src={formData.avatar || "/img/default-avatar.png"}
-                alt="Profile Image"
+                src={formData.image||"" }
                 size="lg"
                 variant="rounded"
                 className="rounded-lg shadow-lg"
@@ -90,51 +95,49 @@ export function Profile() {
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="hidden"
+                className="hidden" // Hide the input, trigger it with the CameraIcon
               />
               <CameraIcon className="absolute bottom-0 right-0 h-6 w-6 text-white bg-blue-500 rounded-full p-1" />
-            </label>
+            </FormLabel>
             <div className="text-center">
               <Typography variant="h5" color="blue-gray" className="mb-1">
-                {formData.fname || 'Richard Davisa'}
+                {formData.fname || 'Richard Davisa'}  {formData.lname || 'Richard Davisa'}
               </Typography>
               <Typography variant="small" className="font-normal text-blue-gray-600">
-                CEO / Co-Founder
+                {formData.email}
               </Typography>
             </div>
-            <Tooltip content="Edit Profile" className="cursor-pointer">
-              <PencilIcon className="h-5 w-5 text-blue-gray-500 hover:text-blue-500 transition" />
-            </Tooltip>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-4 mb-6">
-              <Input
+              <TextField
                 label="First Name"
                 name="fname"
                 value={formData.fname}
                 onChange={handleChange}
-                className="bg-gray-100 border-blue-gray-300 focus:border-blue-500"
+                className="bg-gray-100 border-blue-gray-300 focus:border-black"
               />
-              <Input
+              <TextField
                 label="Last Name"
                 name="lname"
                 value={formData.lname}
                 onChange={handleChange}
-                className="bg-gray-100 border-blue-gray-300 focus:border-blue-500"
+                className="bg-gray-100 border-blue-gray-300 focus:border-black"
               />
-              <Input
+              <TextField
                 label="Email"
                 name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="bg-gray-100 border-blue-gray-300 focus:border-blue-500"
+                className="bg-gray-100 border-blue-gray-300 focus:border-black"
               />
             </div>
             <Button 
+              variant="outlined"
               type="submit" 
               disabled={loading || isSubmitting} 
-              className="w-full bg-blue-500 hover:bg-blue-600 transition"
+              className="w-[30vh] hover:bg-black hover:text-white transition justify-center flex-row mx-auto"
             >
               {isSubmitting ? 'Updating...' : 'Update Profile'}
             </Button>

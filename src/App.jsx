@@ -8,17 +8,20 @@ import "@/app.css";
 // import Protect from "./Protect";
 function App() {
   const dispatch = useDispatch();
-   const user = useSelector((state) => state.auth);
-   console.log(user,"head")
-  const { isAuthenticated,loading, error } = useSelector((state) => state.auth); 
+  //  const user = useSelector((state) => state.auth);
+  //  console.log(user,"head")
+  const {user, isAuthenticated,loading, error } = useSelector((state) => state.auth); 
 
   useEffect(() => {
-    
-    const token = localStorage.getItem('access_token');
-    if (token && !isAuthenticated && !user) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch, isAuthenticated]);
+  if (isAuthenticated) {
+    dispatch(fetchUser())
+  }
+  const token = localStorage.getItem('access_token');
+  if (token && !isAuthenticated && !user) {
+    dispatch(fetchUser());
+  }
+}, [dispatch, isAuthenticated]);
+
 
   if (loading) {
     return <div>Loading...</div>;
